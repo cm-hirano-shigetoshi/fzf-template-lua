@@ -1,23 +1,12 @@
 local M = {}
-local fzf = require("fzf")
-
-require("fzf").default_options = {
-    window_on_create = function()
-        vim.cmd("set winhl=Normal:Normal")
-    end
-}
-
-local function execute_fzf()
-    coroutine.wrap(function()
-        local result = fzf.fzf("date", "--multi")
-        if result then
-            print(result)
-        end
-    end)()
-end
+require("FzfExecute")
+require("InternalServer")
+require("MyUtils")
 
 local function call(query)
-    execute_fzf()
+    local server_port = InternalServer:new()
+    local fzf_port = get_available_port()
+    start_fzf(fzf_port)
 end
 
 M.run = function(query)
