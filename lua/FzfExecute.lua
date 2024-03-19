@@ -1,4 +1,6 @@
 local fzf = require("fzf")
+FzfExecute = {}
+FzfExecute.__index = FzfExecute
 
 require("fzf").default_options = {
     window_on_create = function()
@@ -6,11 +8,39 @@ require("fzf").default_options = {
     end
 }
 
-function start_fzf(port)
-    coroutine.wrap(function()
-        local result = fzf.fzf("date", "--multi --listen " .. port)
+SOURCE = "find / 2>/dev/null"
+BIND_KEYS = { "ctrl-a", "ctrl-b" }
+
+local function get_initial_fzf_options(fzf_port)
+    return {
+        "--listen",
+        fzf_port
+    }
+end
+
+local function get_bind_options(server_port, bind_keys)
+    local options = {}
+    for _, key in ipairs(bind_keys) do
+        table.insert(options, "--bind")
+        table.insert(options, string.format("'%s:execute-silent:curl \"localhost:%d?bind=%s\"'", key, server_port, key))
+    end
+    return options
+end
+
+function FzfExecute.new()
+    local self = setmetatable({}, FzfExecute)
+    return self
+end
+
+function FzfExecute:start_async(server)
+    local base_options = get_initial_fzf_options(os.getenv("FZF_PORT"))
+    local bind_options = get_bind_options(os.getenv("SERVER_PORT"), BIND_KEYS)
+    local option = table.concat(base_options, " ") .. " " .. table.concat(bind_options, " ")
+    coroutine.wrap(function(server_, src_, option_)
+        local result = fzf.fzf(src_, option_)
         if result then
             print(result)
         end
-    end)()
+        server_:stop()
+    end)(server, SOURCE, option)
 end
