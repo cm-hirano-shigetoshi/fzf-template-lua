@@ -8,13 +8,12 @@ require("fzf").default_options = {
     end
 }
 
-SOURCE = "find / 2>/dev/null"
-BIND_KEYS = { "ctrl-a", "ctrl-b" }
+BIND_KEYS = { "alt-j", "alt-u" }
 
 local function get_initial_fzf_options(fzf_port)
     return {
         "--listen",
-        fzf_port
+        fzf_port,
     }
 end
 
@@ -36,11 +35,11 @@ function FzfExecute:start_async(server)
     local base_options = get_initial_fzf_options(os.getenv("FZF_PORT"))
     local bind_options = get_bind_options(os.getenv("SERVER_PORT"), BIND_KEYS)
     local option = table.concat(base_options, " ") .. " " .. table.concat(bind_options, " ")
-    coroutine.wrap(function(server_, src_, option_)
-        local result = fzf.fzf(src_, option_)
+    coroutine.wrap(function(server_, option_)
+        local result = fzf.fzf(":", option_)
         if result then
             print(result)
         end
         server_:stop()
-    end)(server, SOURCE, option)
+    end)(server, option)
 end

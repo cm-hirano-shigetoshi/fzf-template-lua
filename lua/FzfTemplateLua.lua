@@ -8,13 +8,15 @@ local function call(query)
     vim.cmd("let $FZF_PORT = " .. get_available_port())
     vim.cmd("let $SERVER_PORT = " .. get_available_port())
 
-    -- serverを移動する
+    -- serverインスタンスを作成
     local server = InternalServer.new()
-    server:start()
 
     -- fzfのプロセスを開始
     local fzf = FzfExecute.new()
     fzf:start_async(server)
+
+    -- serverを起動する
+    server:start()
 end
 
 M.run = function(query)
