@@ -8,7 +8,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 nnoremap <silent> <Plug>fzf-template-lua-run :lua require('FzfTemplateLua').run("")<cr>
-nnoremap <C-a> <Plug>fzf-template-lua-run
+nnoremap <Tab>z <Plug>fzf-template-lua-run
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
